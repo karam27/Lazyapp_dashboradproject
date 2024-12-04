@@ -15,5 +15,7 @@ class Activity extends Model
         'duration',
         'date',
     ];
+    protected $hidden = ['created_at', 'updated_at'];
+
 
 }

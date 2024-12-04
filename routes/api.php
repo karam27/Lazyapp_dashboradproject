@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
+use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -20,11 +20,16 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
 Route::apiResource('doctors', DoctorController::class);
 
 Route::apiResource('users', UserController::class);
 
 Route::get('/eye-levels', [EyeLevelController::class, 'index']);
+
+Route::get('/reports', [ReportController::class, 'index']);
+Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
+
 
 
 Route::middleware('guest')->group(function () {
@@ -50,8 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Eye Levels
 
     // Reports
-    Route::get('/reports', [ReportController::class, 'index']);
-    Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'edit']);
