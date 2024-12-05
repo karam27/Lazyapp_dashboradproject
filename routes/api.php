@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
+use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +33,7 @@ Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 Route::get('/settings', [SettingsController::class, 'edit']);
 Route::put('/settings', [SettingsController::class, 'update']);
 
+Route::get('dashboard', [DashboardController::class, 'index']);
 
 
 Route::middleware('guest')->group(function () {
@@ -45,12 +46,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('api.dashboard');
+
 
     // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('api.profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('api.profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('api.profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit']);
+    Route::patch('/profile', [ProfileController::class, 'update']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
+
     // Users
 
     //Doctor
