@@ -9,13 +9,28 @@ use Illuminate\Support\Facades\Hash;
 
 class SettingsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function edit()
     {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+
         return view('admin.settings');
     }
     // تحديث الإعدادات
     public function update(Request $request)
     {
+
+        if (!auth()->check()) {
+            return redirect()->route('login'); 
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . Auth::id(),

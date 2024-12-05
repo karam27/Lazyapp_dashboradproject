@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
 use App\Http\Controllers\API\ReportController;
+use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +29,9 @@ Route::get('/eye-levels', [EyeLevelController::class, 'index']);
 
 Route::get('/reports', [ReportController::class, 'index']);
 Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
+
+Route::get('/settings', [SettingsController::class, 'edit']);
+Route::put('/settings', [SettingsController::class, 'update']);
 
 
 
@@ -57,6 +60,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reports
 
     // Settings
-    Route::get('/settings', [SettingsController::class, 'edit']);
-    Route::put('/settings', [SettingsController::class, 'update']);
+
 });
