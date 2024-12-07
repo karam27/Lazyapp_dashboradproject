@@ -44,9 +44,6 @@ Route::apiResource('/eye-levels', EyeLevelController::class);
 Route::apiResource('/reports', ReportController::class);
 Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 
-// Settings
-Route::get('/settings', [SettingsController::class, 'edit']);
-Route::put('/settings', [SettingsController::class, 'update']);
 
 
 
@@ -68,6 +65,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //Doctor
     Route::apiResource('doctors', DoctorController::class);
 
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'edit']);
+    Route::put('/settings', [SettingsController::class, 'update']);
 
 
 });

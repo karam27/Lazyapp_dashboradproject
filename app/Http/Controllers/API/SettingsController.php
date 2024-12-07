@@ -34,17 +34,9 @@ class SettingsController extends Controller
 
         $user = Auth::user();
 
-        if (!$user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'لم يتم التوثيق. يرجى تسجيل الدخول أولاً.'
-            ], 401);
-        }
-
-
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 
@@ -63,11 +55,21 @@ class SettingsController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'تم تحديث الإعدادات بنجاح',
+            'message' => 'Settings have been updated successfully',
             'data' => [
                 'name' => $user->name,
                 'email' => $user->email,
             ],
+        ], 200);
+    }
+
+    public function show()
+    {
+        $user = Auth::user();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $user,
         ], 200);
     }
 }
