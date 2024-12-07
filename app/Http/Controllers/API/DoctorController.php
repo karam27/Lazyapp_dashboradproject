@@ -51,7 +51,7 @@ class DoctorController extends Controller
             'user_id' => $user->id,
         ]);
 
-        return response()->json(['message' => 'تم إضافة الطبيب بنجاح', 'doctor' => $doctor], 201);
+        return response()->json(['message' => 'The doctor has been added successfully.', 'doctor' => $doctor], 201);
     }
 
 
@@ -80,7 +80,7 @@ class DoctorController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->role !== 'doctor') {
-            return response()->json(['message' => 'هذا المستخدم ليس طبيبًا'], 403);
+            return response()->json(['message' => 'This user is not a doctor'], 403);
         }
 
 
@@ -100,7 +100,7 @@ class DoctorController extends Controller
             ['user_id' => $user->id],
         );
 
-        return response()->json(['message' => 'تم تعديل البيانات بنجاح', 'doctor' => $doctor]);
+        return response()->json(['message' => 'Data has been modified successfully', 'doctor' => $doctor]);
     }
 
     /**
@@ -108,7 +108,12 @@ class DoctorController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
+
+
+        if (!$user) {
+            return response()->json(['error' =>'User not found'], 404);
+        }
 
         if ($user->role !== 'doctor') {
             return response()->json(['error' => 'Access Denied'], 403);
@@ -121,6 +126,6 @@ class DoctorController extends Controller
 
         $user->delete();
 
-        return response()->json(['message' => 'تم حذف الطبيب بنجاح']);
+        return response()->json(['message' => 'Doctor successfully deleted']);
     }
 }
