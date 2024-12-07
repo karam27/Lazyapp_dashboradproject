@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Validator;
 
 class DoctorController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth::sanctum')->except('index', 'show');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -144,8 +149,14 @@ class DoctorController extends Controller
      */
     public function destroy($id)
     {
-        // استرجاع الطبيب
-        $doctor = User::findOrFail($id);
+        $doctor = User::find($id);
+
+        if (!$doctor) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Doctor not found'
+            ], 404);
+        }
 
         if (!$doctor->hasRole('doctor')) {
             return response()->json([
@@ -154,7 +165,6 @@ class DoctorController extends Controller
             ], 403);
         }
 
-        // حذف الطبيب
         $doctor->delete();
 
         return response()->json([

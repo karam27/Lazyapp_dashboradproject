@@ -21,20 +21,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('doctors', DoctorController::class);
 
 
 
-Route::apiResource('/eye-levels', EyeLevelController::class);
-
-Route::apiResource('/reports', ReportController::class);
-
-Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
-
-Route::get('/settings', [SettingsController::class, 'edit']);
-Route::put('/settings', [SettingsController::class, 'update']);
-
-// Route::get('dashboard', [DashboardController::class, 'index']);
 
 
 
@@ -49,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
 
+    // Route::get('dashboard', [DashboardController::class, 'index']);
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit']);
@@ -58,11 +48,18 @@ Route::middleware('auth:sanctum')->group(function () {
     // Users
     Route::apiResource('users', UserController::class);
     //Doctor
+    Route::apiResource('doctors', DoctorController::class);
 
     // Eye Levels
+    Route::apiResource('/eye-levels', EyeLevelController::class);
 
     // Reports
 
-    // Settings
+    Route::apiResource('/reports', ReportController::class);
 
+    Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'edit']);
+    Route::put('/settings', [SettingsController::class, 'update']);
 });
