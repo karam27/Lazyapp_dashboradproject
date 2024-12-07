@@ -12,14 +12,13 @@ class EyeLevelController extends Controller
     {
 
         $eyeLevels = EyeLevel::whereHas('user', function ($query) {
-            $query->role('child');
+            $query->where('role', 'child');
         })->get();
 
 
         foreach ($eyeLevels as $level) {
             $level->exam_date = Carbon::parse($level->exam_date);
         }
-
 
         return view('admin.eyelevel', compact('eyeLevels'));
     }

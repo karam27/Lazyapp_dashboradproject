@@ -46,12 +46,10 @@
                 <select id="role" name="role"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     required>
-                    <option value="admin"
-                        {{ old('role', $user->roles->first()->name ?? '') == 'admin' ? 'selected' : '' }}>
+                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>
                         Admin
                     </option>
-                    <option value="doctor"
-                        {{ old('role', $user->roles->first()->name ?? '') == 'doctor' ? 'selected' : '' }}>
+                    <option value="doctor" {{ old('role', $user->role) == 'doctor' ? 'selected' : '' }}>
                         Doctor
                     </option>
                 </select>

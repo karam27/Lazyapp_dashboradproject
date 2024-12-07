@@ -8,7 +8,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class EyeLevel extends Model
 {
-    use HasFactory, HasRoles;
+    use HasFactory;
 
     protected $fillable = ['user_id', 'level', 'exam_date'];
 

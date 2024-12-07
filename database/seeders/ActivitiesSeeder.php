@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Activity;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class ActivitiesSeeder extends Seeder
@@ -14,15 +14,13 @@ class ActivitiesSeeder extends Seeder
      */
     public function run(): void
     {
-        $children = User::whereHas('roles', function ($query) {
-            $query->where('name', 'child');
-        })->pluck('name');
+        $children = User::where('role', 'child')->get();
         foreach ($children as $child) {
             Activity::create([
-                'child_name' => $child,
-                'activity_name' => 'تمرين العين',
-                'duration' => rand(10, 30),
-                'date' => now()->subDays(rand(1, 7)),
+                'user_id' => $child->id,
+                'activity_name' =>  'نشاط  العين' . rand(1, 5),
+                'duration' => rand(15, 60),
+                'date' => Carbon::now()->subDays(rand(1, 30)),
             ]);
         }
     }

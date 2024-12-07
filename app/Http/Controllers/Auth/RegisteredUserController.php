@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Doctor;  // إضافة نموذج Doctor
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -37,15 +38,27 @@ class RegisteredUserController extends Controller
             'role' => ['required', 'in:doctor,admin'],
         ]);
 
+       
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
-        $user->assignRole($request->role);
+
+        if ($request->role === 'doctor') {
+            $doctor = Doctor::create([
+                'user_id' => $user->id,
+
+            ]);
+        }
+
+
         event(new Registered($user));
 
+
         Auth::login($user);
+
 
         return redirect(RouteServiceProvider::HOME);
     }

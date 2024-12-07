@@ -8,14 +8,20 @@ use Spatie\Permission\Traits\HasRoles;
 
 class Activity extends Model
 {
-    use HasFactory, HasRoles;
+    use HasFactory;
     protected $fillable = [
-        'child_name',
+        'user_id',
         'activity_name',
         'duration',
         'date',
     ];
     protected $hidden = ['created_at', 'updated_at'];
-
-
+    public function child()
+    {
+        return $this->belongsTo(Child::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

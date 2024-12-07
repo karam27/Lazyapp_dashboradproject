@@ -38,7 +38,8 @@
                                 @foreach ($activities as $activity)
                                     <tr class="border-b border-gray-300 hover:bg-gray-100">
                                         <td class="border border-gray-300 px-6 py-4">{{ $loop->iteration }}</td>
-                                        <td class="border border-gray-300 px-6 py-4">{{ $activity->child_name }}</td>
+                                        <td class="border border-gray-300 px-6 py-4">{{ $activity->user->name }}</td>
+                                        <!-- عرض اسم الطفل -->
                                         <td class="border border-gray-300 px-6 py-4">{{ $activity->activity_name }}</td>
                                         <td class="border border-gray-300 px-6 py-4">{{ $activity->duration }} دقيقة</td>
                                         <td class="border border-gray-300 px-6 py-4">{{ $activity->date->format('d/m/Y') }}

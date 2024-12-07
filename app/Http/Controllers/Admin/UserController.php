@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+
 
 class UserController extends Controller
 {
@@ -21,8 +22,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
-        return view('users.create', compact('roles'));
+        return view('users.create');
     }
 
     /**
@@ -34,7 +34,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|string',  // تأكد من إضافة التحقق من الدور
+            'role' => 'required|string',
         ]);
 
         // إنشاء المستخدم
@@ -42,27 +42,22 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-
+            'role' => $request->role,
         ]);
-        $user->assignRole($request->role);
-        // تعيين الدور للمستخدم
-        // حيث يقوم المستخدم باختيار الدور من نموذج التسجيل
-
+        if ($request->role === 'doctor') {
+            $doctor = Doctor::create([
+                'user_id' => $user->id,
+            ]);
+        }
 
         return redirect()->route('users.index');
     }
 
-
-
-
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $roles = Role::all();
-        return view('users.edit', compact('user', 'roles'));
+        return view('users.edit', compact('user'));
     }
-
-
 
     /**
      * Update the specified resource in storage.
@@ -73,29 +68,40 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
-            'role' => 'required|string',  // التأكد من أنك تتحقق من الحقل 'role'
+            'role' => 'required|string',
         ]);
 
-        // تحديث بيانات المستخدم
+
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password ? bcrypt($request->password) : $user->password,
+            'role' => $request->role,
         ]);
+        if ($request->role === 'doctor') {
+            $doctor = Doctor::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'specialization' => $request->specialization,
+                    'license_number' => $request->license_number,
+                ]
+            );
+        } else {
 
-        // تعيين الدور للمستخدم باستخدام Spatie
-        $user->syncRoles($request->role);  // تحديث الدور
-        // تحديث الدور للمستخدم
+            $doctor = Doctor::where('user_id', $user->id)->delete();
+        }
 
         return redirect()->route('users.index');
     }
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        $user->delete();
+        Doctor::where('user_id', $id)->delete();
+        $user->delete();  // حذف المستخدم
         return redirect()->route('users.index');
     }
 }

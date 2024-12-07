@@ -30,16 +30,11 @@
                             <!-- البريد الإلكتروني -->
                             <td class="px-20 py-4">{{ $user->email }}</td>
 
-                            <!-- عرض الأدوار -->
+                            <!-- عرض الدور -->
                             <td class="px-20 py-4">
-                                @foreach ($user->roles as $role)
-                                    <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
-                                        {{ $role->name }}
-                                    </span>
-                                    @if (!$loop->last)
-                                        <span class="text-gray-400">,</span> <!-- فاصلة بين الأدوار -->
-                                    @endif
-                                @endforeach
+                                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
+                                    {{ ucfirst($user->role) }} <!-- عرض الدور -->
+                                </span>
                             </td>
 
                             <!-- الإجراءات -->

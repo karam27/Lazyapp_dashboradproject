@@ -12,7 +12,10 @@ class ActivitiesExport implements FromCollection
      */
     public function collection()
     {
-        return Activity::select('id', 'child_name', 'activity_name', 'duration', 'date')->get();
+
+        return Activity::with('user:id,name')
+            ->select('id', 'user_id', 'activity_name', 'duration', 'date')
+            ->get();
     }
 
 
@@ -25,12 +28,13 @@ class ActivitiesExport implements FromCollection
     }
     public function map($activity): array
     {
+
         return [
             $activity->id,
-            $activity->child_name,
+            $activity->user->name,  // الحصول على اسم الطفل من العلاقة
             $activity->activity_name,
             $activity->duration . ' دقيقة',
-            $activity->date,
+            $activity->date->format('d/m/Y'),  // تنسيق التاريخ
         ];
     }
 }
