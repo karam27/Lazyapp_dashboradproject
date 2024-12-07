@@ -37,8 +37,6 @@ Route::patch('/profile', [ProfileController::class, 'update']);
 Route::delete('/profile', [ProfileController::class, 'destroy']);
 
 
-// Eye Levels
-Route::apiResource('/eye-levels', EyeLevelController::class);
 
 // Reports
 Route::apiResource('/reports', ReportController::class);
@@ -64,6 +62,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Doctor
     Route::apiResource('doctors', DoctorController::class);
+
+    // Eye Levels
+    Route::apiResource('/eye-levels', EyeLevelController::class);
+
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'edit']);

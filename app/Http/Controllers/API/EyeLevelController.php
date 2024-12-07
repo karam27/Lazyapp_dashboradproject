@@ -13,24 +13,17 @@ class EyeLevelController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         // جلب بيانات EyeLevel المرتبطة بالمستخدمين الذين لديهم دور "child"
-        $query = EyeLevel::whereHas('user', function ($q) {
-            $q->where('role', 'child');
-        });
+        $eyeLevels = EyeLevel::whereHas('user', function ($query) {
+            $query->where('role', 'child');
+        })->get();
 
-        if ($request->has('exam_date')) {
-            $query->whereDate('exam_date', $request->exam_date);
+        // تحويل تاريخ الفحص إلى صيغة مناسبة
+        foreach ($eyeLevels as $level) {
+            $level->exam_date = Carbon::parse($level->exam_date)->toDateString();
         }
-
-        if ($request->has('sort_by') && $request->has('order')) {
-            $query->orderBy($request->sort_by, $request->order);
-        }
-
-
-        $eyeLevels = $query->select('id', 'user_id', 'exam_date', 'level')
-            ->paginate(10);
 
         return response()->json([
             'status' => 'success',
@@ -39,7 +32,7 @@ class EyeLevelController extends Controller
     }
 
     /**
-     * Store a newly created eye level in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
@@ -49,41 +42,29 @@ class EyeLevelController extends Controller
             'level' => 'required|string|in:low,medium,high'
         ]);
 
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $eyeLevel = EyeLevel::create([
+            'user_id' => $request->user_id,
+            'exam_date' => Carbon::parse($request->exam_date),
+            'level' => $request->level,
+        ]);
 
-        $eyeLevel = EyeLevel::create(
-            [
-                'user_id' => $request->user_id,
-                'exam_date' => Carbon::parse($request->exam_date),
-                'level' => $request->level,
-
-            ]
-        );
-
-        return response()->json(
-            [
-                'message' => 'EyeLevel created successfully',
-                'data' => $eyeLevel
-            ],
-            201
-        );
+        return response()->json([
+            'message' => 'EyeLevel created successfully',
+            'data' => $eyeLevel
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
-        $eyeLevel = EyeLevel::with('user')->find($id);
-        
-        if (!$eyeLevel) {
-            return response()->json(['message' => 'EyeLevel not found'], 404);
-        }
 
+        $eyeLevel = EyeLevel::with('user')->findOrFail($id);
 
         return response()->json([
             'status' => 'success',
@@ -91,19 +72,12 @@ class EyeLevelController extends Controller
         ], 200);
     }
 
-
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $eyeLevel = EyeLevel::findOrFail($id);
-
-
-        if (!$eyeLevel) {
-            return response()->json(['message' => 'EyeLevel not found'], 404);
-        }
 
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
@@ -115,13 +89,7 @@ class EyeLevelController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $eyeLevel->update(
-            $request->only([
-                'user_id',
-                'exam_date',
-                'level'
-            ])
-        );
+        $eyeLevel->update($request->only(['user_id', 'exam_date', 'level']));
 
         return response()->json([
             'status' => 'success',
@@ -129,20 +97,13 @@ class EyeLevelController extends Controller
         ], 200);
     }
 
-
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $eyeLevel = EyeLevel::findOrFail($id);
 
-        if (!$eyeLevel) {
-            return response()->json(['error' => 'EyeLevel not found'], 404);
-        }
-
-        // حذف السجل
         $eyeLevel->delete();
 
         return response()->json([
