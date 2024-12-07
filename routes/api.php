@@ -23,27 +23,29 @@ use Illuminate\Support\Facades\Route;
 
 Route::apiResource('doctors', DoctorController::class);
 
-Route::apiResource('users', UserController::class);
 
-Route::get('/eye-levels', [EyeLevelController::class, 'index']);
 
-Route::get('/reports', [ReportController::class, 'index']);
+Route::apiResource('/eye-levels', EyeLevelController::class);
+
+Route::apiResource('/reports', ReportController::class);
+
 Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 
 Route::get('/settings', [SettingsController::class, 'edit']);
 Route::put('/settings', [SettingsController::class, 'update']);
 
-Route::get('dashboard', [DashboardController::class, 'index']);
+// Route::get('dashboard', [DashboardController::class, 'index']);
 
 
-Route::middleware('guest')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
-});
 
+
+Route::middleware('guest')->group(function () {});
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/register', [AuthController::class, 'register']);
 
     // Dashboard
 
@@ -54,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy']);
 
     // Users
-
+    Route::apiResource('users', UserController::class);
     //Doctor
 
     // Eye Levels

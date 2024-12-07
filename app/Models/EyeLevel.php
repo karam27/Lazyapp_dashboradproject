@@ -9,6 +9,9 @@ use Spatie\Permission\Traits\HasRoles;
 class EyeLevel extends Model
 {
     use HasFactory, HasRoles;
+
+    protected $fillable = ['user_id', 'level', 'exam_date'];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -4,26 +4,35 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth::sanctum')->except('index' , 'show');
+    }
+
+    private function formatUser($user)
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->roles->pluck('name'),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         //
-        $users = [];
+        $users = User::all()->map(fn($user) => $this->formatUser($user));
 
-        foreach (User::all() as $user) {
-            $users[] = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roles' => $user->roles->pluck('name'),
-            ];
-        }
         return response()->json([
             'status' => 'success',
             'data' => $users
@@ -35,7 +44,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
@@ -43,12 +52,12 @@ class UserController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
         ]);
 
-        $user->assignRole($validated['role']);
+        $user->assignRole($request->role);
 
         return response()->json([
             'status' => 'success',
@@ -62,17 +71,19 @@ class UserController extends Controller
     public function show(string $id)
     {
         //
-        return User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roles' => $user->roles->pluck('name'),
-            ]
-        ], 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->formatUser($user)
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found',
+            ], 404);
+        }
     }
 
     /**
@@ -100,7 +111,6 @@ class UserController extends Controller
             'status' => 'success',
             'data' => $user
         ], 200);
-
     }
 
     /**
@@ -117,5 +127,4 @@ class UserController extends Controller
             'message' => 'User deleted successfully',
         ], 200);
     }
-    
 }

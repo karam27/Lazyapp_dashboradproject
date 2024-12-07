@@ -30,7 +30,6 @@ class DoctorController extends Controller
             'data' => DoctorResource::collection($doctor),
 
         ], 200);
-
     }
 
     /**
@@ -74,7 +73,13 @@ class DoctorController extends Controller
      */
     public function show($id)
     {
-        // استرجاع الطبيب حسب الـ id
+        if (is_null($id) || !is_numeric($id)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid ID provided'
+            ], 400);
+        }
+
         $doctor = User::findOrFail($id);
 
         if (!$doctor->hasRole('doctor')) {
@@ -89,6 +94,7 @@ class DoctorController extends Controller
             'data' => $doctor
         ], 200);
     }
+
 
     /**
      * Update the specified resource in storage.

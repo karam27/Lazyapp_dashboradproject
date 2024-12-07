@@ -3,86 +3,79 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
 
-        $credentials = $request->only('email', 'password');
+        //  return $request->all();
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            return response()->json(['token' => $user->createToken('YourAppName')->plainTextToken]);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
-        return response()->json(['error' => 'Unauthorized'], 401);
 
-    //     $request->validate([
-    //         'email' => 'required|email',
-    //         'password' => 'required|min:6',
-    //     ]);
+        $user = User::where('email', $request->email)->first();
 
-    //     $user = User::where('email', $request->email)->first();
 
-    //     if ($user) {
-    //         if (Hash::check($request->password, $user->password)) {
-    //             Auth::login($user);
+        if (!Hash::check($request->password, $user->password)) {
 
-    //             $token = $user->createToken('login')->plainTextToken;
+            $token = $user->createToken($user->name);
 
-    //             return response()->json([
-    //                 'message' => 'Login Successfully',
-    //                 'status' => 'Success',
-    //                 'data' => [
-    //                     'token' => $token
-    //                 ]
-    //             ], 200);
-    //         } else {
-    //             return response()->json([
-    //                 'message' => 'Password does Not Match',
-    //                 'status' => 'Success',
-    //                 'data' => []
-    //             ], 200);
-    //         }
-    //     } else {
-    //         return response()->json([
-    //             'message' => 'No User Found',
-    //             'status' => 'Success',
-    //             'data' => []
-    //         ], 404);
-    //     }
+            return response()->json([
+                'token' =>  $token->plainTextToken,
+                'user' => 'Success',
+                'data' => [
+                    'token' => $token
+                ]
+            ], 200);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
 
-    // public function register(Request $request)
-    // {
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
 
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users,email',
-    //         'password' => 'required|min:6|confirmed',
-    //     ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
 
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //     ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
-    //     // Generate a personal access token for the new user
-    //     $token = $user->createToken('register')->plainTextToken;
+        $token = $user->createToken($user->name)->plainTextToken;
 
-    //     return response()->json([
-    //         'message' => 'Registration Successful',
-    //         'status' => 'Success',
-    //         'data' => [
-    //             'token' => $token
-    //         ]
-    //     ], 201);
-    // }
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user' => $user,
+            'token' => $token,
+        ], 201);
+    }
 }

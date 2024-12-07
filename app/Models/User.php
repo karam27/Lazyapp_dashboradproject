@@ -44,5 +44,10 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function eyeLevels()
+    {
+        return $this->hasMany(EyeLevel::class);
+    }
+
 
 }
