@@ -91,6 +91,10 @@ class ReportController extends Controller
             ], 404);
         }
 
+        if ($request->has('date')) {
+            $request->merge(['date' => Carbon::parse($request->input('date'))->format('Y-m-d H:i:s')]);
+        }
+
         $activity->update($request->all());
 
         return response()->json([

@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\Route;
 
 
 
-// Dashboard
 
 // Route::get('dashboard', [DashboardController::class, 'index']);
 
@@ -36,11 +35,6 @@ Route::get('/profile', [ProfileController::class, 'edit']);
 Route::patch('/profile', [ProfileController::class, 'update']);
 Route::delete('/profile', [ProfileController::class, 'destroy']);
 
-
-
-// Reports
-Route::apiResource('/reports', ReportController::class);
-Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 
 
 
@@ -66,6 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Eye Levels
     Route::apiResource('/eye-levels', EyeLevelController::class);
 
+
+    // Reports
+    Route::apiResource('/reports', ReportController::class);
+    Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'edit']);
