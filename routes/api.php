@@ -28,6 +28,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/register', [AuthController::class, 'register']);
 
+//Doctor
+Route::apiResource('doctors', DoctorController::class);
+
+// Users
+Route::apiResource('users', UserController::class);
+
 
 
 Route::middleware('guest')->group(function () {});
@@ -47,10 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
 
-    // Users
-    Route::apiResource('users', UserController::class);
-    //Doctor
-    Route::apiResource('doctors', DoctorController::class);
 
     // Eye Levels
     Route::apiResource('/eye-levels', EyeLevelController::class);

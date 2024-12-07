@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -17,13 +18,28 @@ class UserController extends Controller
 
     private function formatUser($user)
     {
+        // Lazy load the roles relationship
+        $user->load('roles');
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'roles' => $user->roles->pluck('name'),
         ];
+
+        // If the user is a doctor, add doctor-related information
+        if ($user->roles->contains('doctor')) {
+            $doctor = Doctor::where('user_id', $user->id)->first();
+            $formattedUser['doctor'] = [
+                'specialization' => $doctor->specialization ?? null,
+                'license_number' => $doctor->license_number ?? null,
+            ];
+        }
+
+        return $formattedUser;
     }
+
 
     /**
      * Display a listing of the resource.
@@ -31,12 +47,14 @@ class UserController extends Controller
     public function index()
     {
         //
-        $users = User::all()->map(fn($user) => $this->formatUser($user));
+        $users = User::with('roles')->get()->map(fn($user) => $this->formatUser($user));
+
 
         return response()->json([
             'status' => 'success',
             'data' => $users
         ], 200);
+
     }
 
     /**
@@ -49,6 +67,8 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|string|exists:roles,name',
+            'specialization' => 'nullable|string',
+            'license_number' => 'nullable|string'
         ]);
 
         $user = User::create([
@@ -58,6 +78,14 @@ class UserController extends Controller
         ]);
 
         $user->assignRole($request->role);
+
+        if ($request->role === 'doctor') {
+            Doctor::create([
+                'user_id' => $user->id,
+                'specialization' => $request->specialization,
+                'license_number' => $request->license_number,
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -70,9 +98,8 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
         try {
-            $user = User::findOrFail($id);
+            $user = User::with('roles')->findOrFail($id);
 
             return response()->json([
                 'status' => 'success',
@@ -86,6 +113,7 @@ class UserController extends Controller
         }
     }
 
+
     /**
      * Update the specified resource in storage.
      */
@@ -98,6 +126,8 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|string|exists:roles,name',
+            'specialization' => 'nullable|string',
+            'license_number' => 'nullable|string',
         ]);
         $user->update([
             'name' => $validated['name'],
@@ -106,6 +136,19 @@ class UserController extends Controller
         ]);
 
         $user->syncRoles($validated['role']);
+
+        // Update doctor information if the user is a doctor
+        if ($validated['role'] === 'doctor') {
+            Doctor::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'specialization' => $validated['specialization'],
+                    'license_number' => $validated['license_number'],
+                ]
+            );
+        } else {
+            Doctor::where('user_id', $user->id)->delete();
+        }
 
         return response()->json([
             'status' => 'success',
