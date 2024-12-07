@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'sanctum', // هذا هو الحارس الذي تستخدمه Sanctum
+            'provider' => 'users',
+        ],
     ],
 
     /*

@@ -13,28 +13,20 @@ use Illuminate\Support\Facades\Validator;
 class DoctorController extends Controller
 {
 
-    public function __construct()
-    {
-        $this->middleware('auth::sanctum')->except('index', 'show');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth::sanctum')->except('index', 'show');
+    // }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-        $doctor = User::whereHas(
-            'roles',
-            function ($query) {
-                $query->where('name', 'doctor');
-            }
-        )->select('name', 'email')->get();
+        // استرجاع جميع الأطباء (الذين لديهم دور "doctor")
 
-        return response()->json([
-            'status' => 'success',
-            'data' => DoctorResource::collection($doctor),
+        $doctors = User::where('role', 'doctor')->with('doctor')->get();
 
-        ], 200);
+        return response()->json($doctors);
     }
 
     /**
@@ -42,62 +34,41 @@ class DoctorController extends Controller
      */
     public function store(Request $request)
     {
-        // استرجاع الأطباء (المستخدمين الذين لديهم دور "doctor")
-
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
-            ], 400);
-        }
-
-        $doctor = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'role' => 'doctor',
         ]);
 
-        // تعيين دور الطبيب
-        $doctor->assignRole('doctor');
+        $doctor = Doctor::create([
+            'user_id' => $user->id,
+        ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Doctor created successfully',
-            'data' => $doctor
-        ], 201);
+        return response()->json(['message' => 'تم إضافة الطبيب بنجاح', 'doctor' => $doctor], 201);
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show($id)
     {
-        if (is_null($id) || !is_numeric($id)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid ID provided'
-            ], 400);
+        $user = User::findOrFail($id);
+
+        if ($user->role !== 'doctor') {
+            return response()->json(['error' => 'Access Denied'], 403);
         }
 
-        $doctor = User::findOrFail($id);
+        $doctor = Doctor::where('user_id', $user->id)->first();
 
-        if (!$doctor->hasRole('doctor')) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'This user is not a doctor'
-            ], 403);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $doctor
-        ], 200);
+        return response()->json(['user' => $user, 'doctor' => $doctor]);
     }
 
 
@@ -106,42 +77,30 @@ class DoctorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // استرجاع الطبيب
-        $doctor = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        if (!$doctor->hasRole('doctor')) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'This user is not a doctor'
-            ], 403);
+        if ($user->role !== 'doctor') {
+            return response()->json(['message' => 'هذا المستخدم ليس طبيبًا'], 403);
         }
 
-        // التحقق من صحة المدخلات
-        $validator = Validator::make($request->all(), [
+
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $doctor->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
-            ], 400);
-        }
-
-        // تحديث البيانات
-        $doctor->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $doctor->password,
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $request->password ? bcrypt($request->password) : $user->password,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Doctor updated successfully',
-            'data' => $doctor
-        ], 200);
+        $doctor = Doctor::updateOrCreate(
+            ['user_id' => $user->id],
+        );
+
+        return response()->json(['message' => 'تم تعديل البيانات بنجاح', 'doctor' => $doctor]);
     }
 
     /**
@@ -149,27 +108,19 @@ class DoctorController extends Controller
      */
     public function destroy($id)
     {
-        $doctor = User::find($id);
+        $user = User::findOrFail($id);
 
-        if (!$doctor) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Doctor not found'
-            ], 404);
+        if ($user->role !== 'doctor') {
+            return response()->json(['error' => 'Access Denied'], 403);
         }
 
-        if (!$doctor->hasRole('doctor')) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'This user is not a doctor'
-            ], 403);
+        $doctor = Doctor::where('user_id', $user->id)->first();
+        if ($doctor) {
+            $doctor->delete();
         }
 
-        $doctor->delete();
+        $user->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Doctor deleted successfully'
-        ], 200);
+        return response()->json(['message' => 'تم حذف الطبيب بنجاح']);
     }
 }

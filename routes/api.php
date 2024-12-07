@@ -20,49 +20,54 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
+
+
+
+
+
+// Dashboard
+
+// Route::get('dashboard', [DashboardController::class, 'index']);
+
+// Profile
+Route::get('/profile', [ProfileController::class, 'edit']);
+Route::patch('/profile', [ProfileController::class, 'update']);
+Route::delete('/profile', [ProfileController::class, 'destroy']);
+
+
+// Eye Levels
+Route::apiResource('/eye-levels', EyeLevelController::class);
+
+// Reports
+Route::apiResource('/reports', ReportController::class);
+Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
+
+// Settings
 Route::get('/settings', [SettingsController::class, 'edit']);
 Route::put('/settings', [SettingsController::class, 'update']);
 
 
+
+Route::middleware('guest')->group(function () {
+
+});
+
 Route::post('/login', [AuthController::class, 'login']);
-
-Route::post('/register', [AuthController::class, 'register']);
-
-//Doctor
-Route::apiResource('doctors', DoctorController::class);
-
-// Users
-Route::apiResource('users', UserController::class);
-
-
-
-Route::middleware('guest')->group(function () {});
-
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user', [AuthController::class, 'user']);
 
+    Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Dashboard
+    // Users
+    Route::apiResource('users', UserController::class);
 
-    // Route::get('dashboard', [DashboardController::class, 'index']);
-
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit']);
-    Route::patch('/profile', [ProfileController::class, 'update']);
-    Route::delete('/profile', [ProfileController::class, 'destroy']);
+    //Doctor
+    Route::apiResource('doctors', DoctorController::class);
 
 
-    // Eye Levels
-    Route::apiResource('/eye-levels', EyeLevelController::class);
-
-    // Reports
-
-    Route::apiResource('/reports', ReportController::class);
-
-    Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
-
-    // Settings
 
 });

@@ -12,45 +12,50 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-
-        //  return $request->all();
-
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
 
-
-
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-
         $user = User::where('email', $request->email)->first();
 
+        if (!$user) {
+            return response()->json([
+                'error' => 'User not found'
+            ], 404);
+        }
 
         if (!Hash::check($request->password, $user->password)) {
-
-            $token = $user->createToken($user->name);
-
             return response()->json([
-                'token' =>  $token->plainTextToken,
-                'user' => 'Success',
-                'data' => [
-                    'token' => $token
-                ]
-            ], 200);
+                'error' => 'Invalid credentials'
+            ], 401);
         }
+
+        $token = $user->createToken($user->name)->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+            'token' => $token,
+        ], 200);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
-
 
     public function register(Request $request)
     {
@@ -63,6 +68,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
+
 
         $user = User::create([
             'name' => $request->name,
@@ -79,9 +85,10 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function user(){
+    public function user(Request $request)
+    {
         return response([
-            'user' => auth()->user()
-        ] , 200);
+            'user' => $request->user()
+        ], 200);
     }
 }

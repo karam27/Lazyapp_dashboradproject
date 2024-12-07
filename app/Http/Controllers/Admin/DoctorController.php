@@ -11,7 +11,6 @@ class DoctorController extends Controller
 {
     public function index()
     {
-        // استرجاع جميع الأطباء
         $doctors = User::where('role', 'doctor')->get();
         return view('doctors.index', compact('doctors'));
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EyeLevel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class EyeLevelController extends Controller
 {
@@ -15,20 +16,21 @@ class EyeLevelController extends Controller
     public function index(Request $request)
     {
         // جلب بيانات EyeLevel المرتبطة بالمستخدمين الذين لديهم دور "child"
-        $eyeLevels = EyeLevel::whereHas('user', function ($query) {
-            $query->role('child');
+        $query = EyeLevel::whereHas('user', function ($q) {
+            $q->where('role', 'child');
         });
 
         if ($request->has('exam_date')) {
-            $eyeLevels->whereDate('exam_date', $request->exam_date);
+            $query->whereDate('exam_date', $request->exam_date);
         }
 
         if ($request->has('sort_by') && $request->has('order')) {
-            $eyeLevels->orderBy($request->sort_by, $request->order);
+            $query->orderBy($request->sort_by, $request->order);
         }
 
-        $eyeLevels = $eyeLevels->paginate(10)->makeHidden(['created_at', 'updated_at']);;
 
+        $eyeLevels = $query->select('id', 'user_id', 'exam_date', 'level')
+            ->paginate(10);
 
         return response()->json([
             'status' => 'success',
@@ -41,23 +43,34 @@ class EyeLevelController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
-            'level' => 'required|integer',
             'exam_date' => 'required|date',
+            'level' => 'required|string|in:low,medium,high'
         ]);
 
-        $eyeLevel = EyeLevel::create([
-            'user_id' => $request->user_id,
-            'level' => $request->level,
-            'exam_date' => $request->exam_date,
 
-        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $eyeLevel,
-        ], 201);
+
+        $eyeLevel = EyeLevel::create(
+            [
+                'user_id' => $request->user_id,
+                'exam_date' => Carbon::parse($request->exam_date),
+                'level' => $request->level,
+
+            ]
+        );
+
+        return response()->json(
+            [
+                'message' => 'EyeLevel created successfully',
+                'data' => $eyeLevel
+            ],
+            201
+        );
     }
 
     /**
@@ -65,7 +78,13 @@ class EyeLevelController extends Controller
      */
     public function show($id)
     {
-        $eyeLevel = EyeLevel::findOrFail($id);  // البحث عن السجل باستخدام id
+        $eyeLevel = EyeLevel::with('user')->find($id);
+        
+        if (!$eyeLevel) {
+            return response()->json(['message' => 'EyeLevel not found'], 404);
+        }
+
+
         return response()->json([
             'status' => 'success',
             'data' => $eyeLevel,
@@ -79,22 +98,30 @@ class EyeLevelController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // التحقق من وجود السجل
         $eyeLevel = EyeLevel::findOrFail($id);
 
-        // التحقق من البيانات المدخلة
-        $request->validate([
+
+        if (!$eyeLevel) {
+            return response()->json(['message' => 'EyeLevel not found'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
-            'level' => 'required|integer',
             'exam_date' => 'required|date',
+            'level' => 'sometimes|required|string|in:low,medium,high',
         ]);
 
-        // تحديث السجل
-        $eyeLevel->update([
-            'user_id' => $request->user_id,
-            'level' => $request->level,
-            'exam_date' => $request->exam_date,
-        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $eyeLevel->update(
+            $request->only([
+                'user_id',
+                'exam_date',
+                'level'
+            ])
+        );
 
         return response()->json([
             'status' => 'success',
@@ -109,8 +136,11 @@ class EyeLevelController extends Controller
      */
     public function destroy($id)
     {
-        // التحقق من وجود السجل
         $eyeLevel = EyeLevel::findOrFail($id);
+
+        if (!$eyeLevel) {
+            return response()->json(['error' => 'EyeLevel not found'], 404);
+        }
 
         // حذف السجل
         $eyeLevel->delete();
