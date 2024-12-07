@@ -60,11 +60,14 @@ class SettingsController extends Controller
 
         $user->save();
 
-        
+
         return response()->json([
             'status' => 'success',
             'message' => 'تم تحديث الإعدادات بنجاح',
-            'user' => $user
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
         ], 200);
     }
 }

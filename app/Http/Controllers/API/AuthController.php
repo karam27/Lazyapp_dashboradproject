@@ -17,7 +17,7 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:6',
         ]);
 
 
@@ -77,5 +77,11 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,
         ], 201);
+    }
+
+    public function user(){
+        return response([
+            'user' => auth()->user()
+        ] , 200);
     }
 }

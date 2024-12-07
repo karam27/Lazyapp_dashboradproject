@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
 use App\Http\Controllers\API\ProfileController;
@@ -21,10 +20,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/settings', [SettingsController::class, 'edit']);
+Route::put('/settings', [SettingsController::class, 'update']);
 
 
+Route::post('/login', [AuthController::class, 'login']);
 
-
+Route::post('/register', [AuthController::class, 'register']);
 
 
 
@@ -32,9 +34,9 @@ Route::middleware('guest')->group(function () {});
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/user', [AuthController::class, 'user']);
+
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/register', [AuthController::class, 'register']);
 
     // Dashboard
 
@@ -60,6 +62,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
 
     // Settings
-    Route::get('/settings', [SettingsController::class, 'edit']);
-    Route::put('/settings', [SettingsController::class, 'update']);
+
 });
