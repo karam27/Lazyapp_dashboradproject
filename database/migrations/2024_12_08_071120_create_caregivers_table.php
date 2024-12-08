@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('children', function (Blueprint $table) {
+        Schema::create('caregivers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('caregiver_id');
-            $table->foreign('caregiver_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('name');
-            $table->enum('vision_level', ['normal', 'mild', 'severe']);
-            $table->date('last_exam_date');
             $table->timestamps();
         });
     }
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('children');
+        Schema::dropIfExists('caregivers');
     }
 };

@@ -35,10 +35,15 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:doctor,admin'],
+            'role' => ['required', 'in:doctor,admin'], // تأكد من أن الدور هو doctor أو admin فقط
         ]);
 
-       
+        // تحقق من الدور
+        if (!in_array($request->role, ['doctor', 'admin'])) {
+            return back()->withErrors(['role' => 'Only doctors and admins can register.']);
+        }
+
+        // إنشاء المستخدم
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -46,20 +51,30 @@ class RegisteredUserController extends Controller
             'role' => $request->role,
         ]);
 
+        // إذا كان الدور doctor، قم بإنشاء سجل doctor
         if ($request->role === 'doctor') {
-            $doctor = Doctor::create([
+            Doctor::create([
                 'user_id' => $user->id,
-
             ]);
         }
 
-
+        // إطلاق حدث التسجيل
         event(new Registered($user));
 
-
+        // تسجيل الدخول مباشرة بعد التسجيل
         Auth::login($user);
 
-
         return redirect(RouteServiceProvider::HOME);
+    }
+    public function authenticated(Request $request, $user)
+    {
+        // إذا لم يكن المستخدم من دور admin أو doctor، قم بتسجيل الخروج وعرض رسالة
+        if (!in_array($user->role, ['admin', 'doctor'])) {
+            Auth::logout();
+            return redirect('/login')->withErrors(['role' => 'You do not have permission to access the system.']);
+        }
+
+        // إذا كان المستخدم من الأدوار المسموح بها، تابع عملية الدخول
+        return redirect()->intended(RouteServiceProvider::HOME);
     }
 }
