@@ -35,6 +35,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|string',
+            'gender' => 'required|in:male,female',
         ]);
 
         // إنشاء المستخدم
@@ -43,6 +44,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => $request->role,
+            'gender' => $request->gender,
         ]);
         if ($request->role === 'doctor') {
             $doctor = Doctor::create([
@@ -69,6 +71,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|string',
+            'gender' => 'required|in:male,female',
         ]);
 
 
@@ -77,14 +80,12 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => $request->password ? bcrypt($request->password) : $user->password,
             'role' => $request->role,
+            'gender' => $request->gender,
         ]);
         if ($request->role === 'doctor') {
             $doctor = Doctor::updateOrCreate(
                 ['user_id' => $user->id],
-                [
-                    'specialization' => $request->specialization,
-                    'license_number' => $request->license_number,
-                ]
+
             );
         } else {
 

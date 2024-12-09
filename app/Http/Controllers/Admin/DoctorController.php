@@ -66,10 +66,7 @@ class DoctorController extends Controller
         // تحديث أو إنشاء السجل في جدول doctors
         $doctor = Doctor::updateOrCreate(
             ['user_id' => $user->id], // إذا كان السجل موجودًا يتم تحديثه
-            [
-                'specialization' => $request->specialization,
-                'license_number' => $request->license_number,
-            ]
+
         );
 
         return redirect()->route('doctors.index')->with('success', 'تم تعديل البيانات بنجاح');

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('vision_level', ['normal', 'mild', 'severe']);
             $table->date('last_exam_date');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

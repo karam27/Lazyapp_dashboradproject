@@ -21,6 +21,7 @@
 
 
 
+
         <li>
             <a href="{{ route('admin.doctors') }}"
                 class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all duration-300">
@@ -39,6 +40,12 @@
             </a>
         </li>
 
+        <li>
+            <a href="{{ route('admin.sessions') }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all duration-300">
+                <i class="fa-solid fa-bed-pulse"></i> ادارة جلسات المرضى
+            </a>
+        </li>
 
         <li>
             <a href="{{ route('reports.admin') }}"

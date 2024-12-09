@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\EyeLevelController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
@@ -44,6 +45,9 @@ Route::get('admin/doctors', [DoctorController::class, 'index'])->name('admin.doc
 Route::get('admin/eye-levels', [EyeLevelController::class, 'index'])->name('admin.eye_levels');
 Route::get('/report', [ReportController::class, 'index'])->name('reports.admin');
 Route::get('/reports/excel', [ReportController::class, 'exportToExcel'])->name('reports.excel');
+Route::resource('sessions', SessionController::class);
+Route::get('/sessions', [SessionController::class, 'index'])->name('admin.sessions');
+
 
 
 require __DIR__ . '/auth.php';

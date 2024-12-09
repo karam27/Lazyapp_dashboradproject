@@ -48,7 +48,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            class="text-red-600 hover:text-red-800 transition">حذف</button>
+                                            class="text-red-600 hover:text-red-800 transition mr-2">حذف</button>
                                     </form>
                                 </div>
                             </td>
