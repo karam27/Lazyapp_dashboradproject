@@ -33,20 +33,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::resource('users', UserController::class);
+    Route::get('admin/users', [UserController::class, 'index'])->name('admin.users');
+    Route::get('admin/settings', [SettingsController::class, 'edit'])->name('admin.settings');
+    Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::resource('doctors', DoctorController::class);
+    Route::get('admin/doctors', [DoctorController::class, 'index'])->name('admin.doctors');
+    Route::get('admin/eye-levels', [EyeLevelController::class, 'index'])->name('admin.eye_levels');
+    Route::get('/report', [ReportController::class, 'index'])->name('reports.admin');
+    Route::get('/reports/excel', [ReportController::class, 'exportToExcel'])->name('reports.excel');
+    Route::resource('sessions', SessionController::class);
+    Route::get('/sessions', [SessionController::class, 'index'])->name('admin.sessions');
+
 });
 
-Route::resource('users', UserController::class);
-Route::get('admin/users', [UserController::class, 'index'])->name('admin.users');
-Route::get('admin/settings', [SettingsController::class, 'edit'])->name('admin.settings');
-Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
-Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
-Route::resource('doctors', DoctorController::class);
-Route::get('admin/doctors', [DoctorController::class, 'index'])->name('admin.doctors');
-Route::get('admin/eye-levels', [EyeLevelController::class, 'index'])->name('admin.eye_levels');
-Route::get('/report', [ReportController::class, 'index'])->name('reports.admin');
-Route::get('/reports/excel', [ReportController::class, 'exportToExcel'])->name('reports.excel');
-Route::resource('sessions', SessionController::class);
-Route::get('/sessions', [SessionController::class, 'index'])->name('admin.sessions');
 
 
 
