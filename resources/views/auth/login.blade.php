@@ -28,6 +28,18 @@
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
                 </div>
+                <!-- حقل اختيار الجنس -->
+                <div class="mb-4">
+                    <label for="gender" class="block text-sm font-medium text-gray-700">{{ __('الجنس') }}</label>
+                    <select id="gender" name="gender" required
+                        class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                        <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر</option>
+                        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>أنثى</option>
+                        </select>
+                    @error('gender')
+                        <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                    @enderror
+                </div>
 
                 <!-- خيار تذكرني -->
                 <div class="flex items-center justify-between mb-4">

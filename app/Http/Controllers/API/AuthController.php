@@ -63,6 +63,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
+            'gender' => 'required|in:male,female',
         ]);
 
         if ($validator->fails()) {
@@ -74,6 +75,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'gender' => $request->gender,
         ]);
 
         $token = $user->createToken($user->name)->plainTextToken;

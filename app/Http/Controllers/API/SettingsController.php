@@ -25,6 +25,7 @@ class SettingsController extends Controller
         return response()->json([
             'name' => $user->name,
             'email' => $user->email,
+            'gender' => $user->gender,
         ]);
     }
 
@@ -38,6 +39,7 @@ class SettingsController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
+            'gender' => 'required|in:male,female',
         ]);
 
         $user = Auth::user();
@@ -45,6 +47,7 @@ class SettingsController extends Controller
 
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->gender = $request->gender;
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
@@ -59,6 +62,7 @@ class SettingsController extends Controller
             'data' => [
                 'name' => $user->name,
                 'email' => $user->email,
+                'gender' => $user->gender,
             ],
         ], 200);
     }
@@ -70,6 +74,7 @@ class SettingsController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $user,
+            'gender' => $user->gender,
         ], 200);
     }
 }

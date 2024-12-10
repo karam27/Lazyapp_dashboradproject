@@ -56,6 +56,20 @@
                 <input type="password" id="password_confirmation" name="password_confirmation"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
             </div>
+            <!-- حقل اختيار الجنس -->
+            <div class="mb-4">
+                <label for="gender" class="block text-sm font-medium text-gray-700">الجنس</label>
+                <select id="gender" name="gender" required
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <option value="male" {{ old('gender', auth()->user()->gender) == 'male' ? 'selected' : '' }}>
+                        ذكر</option>
+                    <option value="female"
+                        {{ old('gender', auth()->user()->gender) == 'female' ? 'selected' : '' }}>أنثى</option>
+                    </select>
+                @error('gender')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
 
             <!-- زر التحديث -->
             <div class="mb-4">

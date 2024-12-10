@@ -29,17 +29,20 @@ class SettingsController extends Controller
     {
 
         if (!auth()->check()) {
-            return redirect()->route('login'); 
+            return redirect()->route('login');
         }
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . Auth::id(),
             'password' => 'nullable|string|min:6|confirmed',
+            'gender' => 'required|in:male,female',
         ]);
 
         $user = Auth::user();
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->gender = $request->gender;
+
 
         // إذا تم إدخال كلمة مرور جديدة
         if ($request->filled('password')) {
