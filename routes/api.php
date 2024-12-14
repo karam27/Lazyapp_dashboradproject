@@ -46,7 +46,6 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::apiResource('add-activities' , AddActivityController::class);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -68,6 +67,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reports
     Route::apiResource('/reports', ReportController::class);
     Route::get('/reports/excel', [ReportController::class, 'exportToExcel']);
+
+    //add Activity
+
+    Route::apiResource('add-activities', AddActivityController::class);
+
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'edit']);
