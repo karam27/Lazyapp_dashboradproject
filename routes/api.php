@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AddActivityController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
@@ -44,12 +45,14 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+
+Route::apiResource('add-activities' , AddActivityController::class);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user', [AuthController::class, 'user']);
 
-
+    Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Users
