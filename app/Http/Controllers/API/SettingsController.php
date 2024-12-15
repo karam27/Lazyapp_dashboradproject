@@ -35,9 +35,8 @@ class SettingsController extends Controller
 
         $user = Auth::user();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+        $request->validate(['name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'gender' => 'required|in:male,female',
         ]);
@@ -46,8 +45,11 @@ class SettingsController extends Controller
 
 
         $user->name = $request->name;
-        $user->email = $request->email;
         $user->gender = $request->gender;
+
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
