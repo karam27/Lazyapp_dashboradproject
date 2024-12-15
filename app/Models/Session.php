@@ -9,7 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Session extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillable = ['child_id', 'doctor_id', 'session_date', 'description'];
+    protected $fillable = [
+        'child_id',
+        'doctor_id',
+        'session_date',
+        'vision_level',
+        'description',
+    ];
+
     public function Child()
     {
         return $this->belongsTo(Child::class);

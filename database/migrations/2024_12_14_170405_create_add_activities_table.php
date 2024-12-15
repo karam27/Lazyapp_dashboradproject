@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('activities_id')->constrained('activities')->onDelete('cascade');
-            $table->decimal('vision_level', 3, 2)->nullable();  // لتخزين مستوى الرؤية
+            $table->decimal('vision_level', 3, 2)->nullable()->check('vision_level <= 5');  // لتخزين مستوى الرؤية
             $table->date('date');
             $table->timestamps();
         });

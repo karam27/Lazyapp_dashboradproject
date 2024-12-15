@@ -10,22 +10,37 @@ class Child extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'vision_level', 'last_exam_date'];
+    protected $fillable = [
+        'user_id',
+        'caregivers_id',
+        'doctor_id',
+        'birth_date',
+        'weak_eye',
+        'other_details',
+        'name',
+        'vision_level',
+        'last_exam_date',
+    ];
 
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function caregiver()
     {
-        return $this->belongsTo(caregiver::class, 'parent_id');
+        return $this->belongsTo(caregiver::class, 'caregivers_id');
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(User::class, 'doctor_id');
     }
 
     public function activities()
     {
         return $this->hasMany(Activity::class);
     }
-    
+
 }

@@ -15,7 +15,7 @@ class ChildController extends Controller
     public function index()
     {
         // Retrieve all children
-        $children = Child::all();
+        $children = Child::with(['user', 'caregiver', 'doctor'])->get();
         return response()->json($children, 200);
     }
 
@@ -26,12 +26,16 @@ class ChildController extends Controller
     {
         // Validate the incoming data
         $validator = Validator::make($request->all(), [
-            'children' => 'required|array',
-            'children.*.user_id' => 'required|exists:users,id',
-            'children.*.caregivers_id' => 'required|exists:users,id',
-            'children.*.name' => 'required|string|max:255',
-            'children.*.vision_level' => 'required|in:normal,mild,severe',
-            'children.*.last_exam_date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
+            'caregivers_id' => 'nullable|exists:users,id',
+            'doctor_id' => 'nullable|exists:users,id',
+            'name' => 'required|string|max:255',
+            'birth_date' => 'nullable|date',
+            'weak_eye' => 'nullable|in:left,right,both',
+            'other_details' => 'nullable|string',
+            'vision_level' => 'required|numeric|min:1|max:5',
+            'last_exam_date' => 'required|date',
+
         ]);
 
         // Return validation errors if any
@@ -41,23 +45,12 @@ class ChildController extends Controller
             ], 422);
         }
 
-        // Create the new children
-        $childrenData = collect($request->children)->map(function ($childData) {
-            return [
-                'user_id' => $childData['user_id'],
-                'caregivers_id' => $childData['caregivers_id'],
-                'name' => $childData['name'],
-                'vision_level' => $childData['vision_level'],
-                'last_exam_date' => $childData['last_exam_date'],
-            ];
-        });
+        $child = Child::create($request->all());
 
-        // Convert the collection to array before inserting
-        Child::insert($childrenData->toArray());
 
         return response()->json([
             'message' => 'Children created successfully.',
-            'children' => $childrenData
+            'children' => $child
         ], 201);
     }
 
@@ -68,7 +61,7 @@ class ChildController extends Controller
     public function show(string $id)
     {
         // Find the child by ID with the related user data (caregiver as user)
-        $child = Child::with('user', 'caregiver')->find($id);
+        $child = Child::with(['user', 'caregiver', 'doctor'])->find($id);
 
         if (!$child) {
             return response()->json([
@@ -96,27 +89,18 @@ class ChildController extends Controller
         // Validate the incoming data
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
-            'caregivers_id' => 'required|exists:users,id',
+            'caregivers_id' => 'nullable|exists:users,id',
+            'doctor_id' => 'nullable|exists:users,id',
             'name' => 'required|string|max:255',
-            'vision_level' => 'required|in:normal,mild,severe',
+            'birth_date' => 'nullable|date',
+            'weak_eye' => 'nullable|in:left,right,both',
+            'other_details' => 'nullable|string',
+            'vision_level' => 'required|numeric|min:1|max:5',
             'last_exam_date' => 'required|date',
         ]);
 
-        // Return validation errors if any
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        $child->update($request->all());
 
-        // Update the child record
-        $child->update([
-            'user_id' => $request->user_id,
-            'caregivers_id' => $request->caregivers_id,
-            'name' => $request->name,
-            'vision_level' => $request->vision_level,
-            'last_exam_date' => $request->last_exam_date,
-        ]);
 
         return response()->json([
             'message' => 'Child updated successfully.',

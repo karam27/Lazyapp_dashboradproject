@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // تعريف العمود كمفتاح خارجي
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('activity_name');
-            $table->integer('duration'); // مدة النشاط
-            $table->date('date'); // تاريخ النشاط
+            $table->integer('duration');
+            $table->date('date');
             $table->timestamps();
         });
     }

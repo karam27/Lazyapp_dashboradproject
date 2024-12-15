@@ -7,6 +7,7 @@ use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
 use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\API\ReportController;
+use App\Http\Controllers\API\SessionController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,9 @@ Route::middleware('guest')->group(function () {
 
 
 Route::apiResource('/children' , ChildController::class);
+
+Route::apiResource('sessions', SessionController::class);
+
 
 Route::post('/login', [AuthController::class, 'login']);
 

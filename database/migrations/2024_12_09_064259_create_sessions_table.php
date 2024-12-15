@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('child_id');
             $table->unsignedBigInteger('doctor_id');
             $table->date('session_date');
+            $table->decimal('vision_level', 3, 2)->nullable()->check('vision_level <= 5');
             $table->text('description')->nullable();
             $table->timestamps();
             $table->foreign('child_id')->references('id')->on('children')->onDelete('cascade');

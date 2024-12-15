@@ -22,11 +22,9 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        // استرجاع جميع الأطباء (الذين لديهم دور "doctor")
 
-        $doctors = User::where('role', 'doctor')->with('doctor')->get();
-
-        return response()->json($doctors);
+        $doctors = Doctor::all();
+        return response()->json($doctors, 200);
     }
 
     /**
@@ -34,24 +32,27 @@ class DoctorController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'description' => 'nullable|string',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'number_of_cases' => 'nullable|integer|min:0',
+            'contact_details' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-            'role' => 'doctor',
-        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        $doctor = Doctor::create([
-            'user_id' => $user->id,
-        ]);
+        $doctor = Doctor::create($request->all());
 
-        return response()->json(['message' => 'The doctor has been added successfully.', 'doctor' => $doctor], 201);
+        return response()->json([
+            'message' => 'Doctor created successfully.',
+            'doctor' => $doctor
+        ], 201);
+
     }
 
 
@@ -60,72 +61,71 @@ class DoctorController extends Controller
      */
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $doctor = Doctor::find($id);
 
-        if ($user->role !== 'doctor') {
-            return response()->json(['error' => 'Access Denied'], 403);
+        if (!$doctor) {
+            return response()->json([
+                'message' => 'Doctor not found.'
+            ], 404);
         }
 
-        $doctor = Doctor::where('user_id', $user->id)->first();
-
-        return response()->json(['user' => $user, 'doctor' => $doctor]);
+        return response()->json($doctor, 200);
     }
-
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        $user = User::findOrFail($id);
+        $doctor = Doctor::find($id);
 
-        if ($user->role !== 'doctor') {
-            return response()->json(['message' => 'This user is not a doctor'], 403);
+        if (!$doctor) {
+            return response()->json([
+                'message' => 'Doctor not found.'
+            ], 404);
         }
 
-
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6|confirmed',
+            'description' => 'nullable|string',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'number_of_cases' => 'nullable|integer|min:0',
+            'contact_details' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
         ]);
 
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $request->password ? bcrypt($request->password) : $user->password,
-        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        $doctor = Doctor::updateOrCreate(
-            ['user_id' => $user->id],
-        );
+        $doctor->update($request->all());
 
-        return response()->json(['message' => 'Data has been modified successfully', 'doctor' => $doctor]);
+        return response()->json([
+            'message' => 'Doctor updated successfully.',
+            'doctor' => $doctor
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        $user = User::find($id);
+        $doctor = Doctor::find($id);
 
-
-        if (!$user) {
-            return response()->json(['error' =>'User not found'], 404);
+        if (!$doctor) {
+            return response()->json([
+                'message' => 'Doctor not found.'
+            ], 404);
         }
 
-        if ($user->role !== 'doctor') {
-            return response()->json(['error' => 'Access Denied'], 403);
-        }
+        $doctor->delete();
 
-        $doctor = Doctor::where('user_id', $user->id)->first();
-        if ($doctor) {
-            $doctor->delete();
-        }
-
-        $user->delete();
-
-        return response()->json(['message' => 'Doctor successfully deleted']);
+        return response()->json([
+            'message' => 'Doctor removed successfully.'
+        ], 200);
     }
+
 }

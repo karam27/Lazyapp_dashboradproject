@@ -11,8 +11,12 @@ class Doctor extends Model
     protected $table = 'doctors';
     protected $fillable = [
         'user_id',
-        'specialization',
-        'license_number',
+        'name',
+        'description',
+        'rating',
+        'number_of_cases',
+        'contact_details',
+        'location',
     ];
     public function user()
     {

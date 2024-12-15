@@ -17,9 +17,13 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('caregivers_id')->nullable();
             $table->foreign('caregivers_id')->references('id')->on('users')->onDelete('set null');
-
+            $table->unsignedBigInteger('doctor_id')->nullable();
+            $table->foreign('doctor_id')->references('id')->on('users')->onDelete('set null');
+            $table->date('birth_date')->nullable();
+            $table->enum('weak_eye', ['left', 'right', 'both'])->nullable();
+            $table->text('other_details')->nullable();
             $table->string('name');
-            $table->enum('vision_level', ['normal', 'mild', 'severe']);
+            $table->decimal('vision_level', 5, 2)->nullable()->check('vision_level <= 5');
             $table->date('last_exam_date');
             $table->timestamps();
             $table->softDeletes();
@@ -32,5 +36,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('children');
+
     }
 };
