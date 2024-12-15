@@ -26,12 +26,12 @@ class ChildController extends Controller
     {
         // Validate the incoming data
         $validator = Validator::make($request->all(), [
-            'children' => 'required|array', // التأكد من أن البيانات هي مصفوفة
-            'children.*.user_id' => 'required|exists:users,id', // التحقق من وجود الـ user_id
-            'children.*.caregivers_id' => 'required|exists:users,id', // التحقق من وجود الـ caregivers_id
-            'children.*.name' => 'required|string|max:255', // التحقق من أن الاسم غير فارغ
-            'children.*.vision_level' => 'required|in:normal,mild,severe', // التحقق من مستوى الرؤية
-            'children.*.last_exam_date' => 'required|date', // التحقق من صحة التاريخ
+            'children' => 'required|array',
+            'children.*.user_id' => 'required|exists:users,id',
+            'children.*.caregivers_id' => 'required|exists:users,id',
+            'children.*.name' => 'required|string|max:255',
+            'children.*.vision_level' => 'required|in:normal,mild,severe',
+            'children.*.last_exam_date' => 'required|date', 
         ]);
 
         // Return validation errors if any
