@@ -59,24 +59,60 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'gender' => 'required|in:male,female',
+            'role' => 'required|in:caregiver,child',
+            'caregiver_id' => 'required|exists:users,id',
+            'child_name' => 'required|string|max:255',
+            'child_gender' => 'required|in:male,female',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
 
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'gender' => $request->gender,
-        ]);
+        if ($request->role == 'caregiver') {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'gender' => $request->gender,
+                'role' => 'caregiver',
+            ]);
+        }
+
+
+        if ($request->role == 'child') {
+
+            if (!$request->filled('caregiver_id')) {
+                return response()->json(['error' => 'Caregiver ID is required for child role.'], 422);
+            }
+
+
+            $caregiver = User::find($request->caregiver_id);
+            if (!$caregiver || $caregiver->role !== 'caregiver') {
+                return response()->json(['error' => 'Invalid caregiver ID.'], 422);
+            }
+
+
+            $user = User::create([
+                'name' => $request->child_name,
+                'email' => $request->email . '.child',
+                'password' => Hash::make($request->password),
+                'gender' => $request->child_gender,
+                'role' => 'child',
+            ]);
+
+
+            $caregiver->children()->attach($user->id);
+        }
+
 
         $token = $user->createToken($user->name)->plainTextToken;
 

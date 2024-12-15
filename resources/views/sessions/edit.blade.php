@@ -34,7 +34,7 @@
                     <option value="" disabled>اختر الطبيب</option>
                     @foreach ($doctors as $doctor)
                         <option value="{{ $doctor->id }}" {{ $doctor->id == $session->doctor_id ? 'selected' : '' }}>
-                            {{ $doctor->name }}
+                            {{ $doctor->user->name }}
                         </option>
                     @endforeach
                 </select>
