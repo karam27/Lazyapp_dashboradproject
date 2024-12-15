@@ -31,7 +31,7 @@ class ChildController extends Controller
             'children.*.caregivers_id' => 'required|exists:users,id',
             'children.*.name' => 'required|string|max:255',
             'children.*.vision_level' => 'required|in:normal,mild,severe',
-            'children.*.last_exam_date' => 'required|date', 
+            'children.*.last_exam_date' => 'required|date',
         ]);
 
         // Return validation errors if any
