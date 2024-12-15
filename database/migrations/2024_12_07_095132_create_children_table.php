@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('caregivers_id');
-            $table->foreign('caregivers_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('caregivers_id')->nullable();
+            $table->foreign('caregivers_id')->references('id')->on('users')->onDelete('set null');
+
             $table->string('name');
             $table->enum('vision_level', ['normal', 'mild', 'severe']);
             $table->date('last_exam_date');

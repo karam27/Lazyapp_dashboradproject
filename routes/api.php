@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AddActivityController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ChildController;
 use App\Http\Controllers\API\DoctorController;
 use App\Http\Controllers\API\EyeLevelController;
 use App\Http\Controllers\API\ProfileController;
@@ -44,9 +45,10 @@ Route::middleware('guest')->group(function () {
 
 });
 
+
+Route::apiResource('/children' , ChildController::class);
+
 Route::post('/login', [AuthController::class, 'login']);
-
-
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user', [AuthController::class, 'user']);
