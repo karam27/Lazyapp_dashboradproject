@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['doctor', 'caregiver', 'child', 'admin']);
             $table->enum('gender', ['male', 'female']);
+            $table->unsignedBigInteger('caregivers_id')->nullable();
             $table->timestamps();
         });
     }

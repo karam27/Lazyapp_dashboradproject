@@ -24,15 +24,11 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json([
-                'error' => 'User not found'
-            ], 404);
+            return response()->json(['error' => 'User not found'], 404);
         }
 
         if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'error' => 'Invalid credentials'
-            ], 401);
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
         $token = $user->createToken($user->name)->plainTextToken;
@@ -59,60 +55,34 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'gender' => 'required|in:male,female',
-            'role' => 'required|in:caregiver,child',
-            'caregiver_id' => 'required|exists:users,id',
-            'child_name' => 'required|string|max:255',
-            'child_gender' => 'required|in:male,female',
+            'role' => 'required|in:doctor,caregiver,child,admin',
+            'caregivers_id' => 'nullable|exists:users,id',
         ]);
-
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
 
+        // إنشاء المستخدم بناءً على الدور
+        $userData = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'gender' => $request->gender,
+            'role' => $request->role,
+            'caregivers_id' => $request->caregivers_id, // للربط مع المُعيل إذا كان Child
+        ];
 
-        if ($request->role == 'caregiver') {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'gender' => $request->gender,
-                'role' => 'caregiver',
-            ]);
+        if ($request->role === 'child' && !$request->caregivers_id) {
+            return response()->json(['error' => 'Caregiver ID is required for child role.'], 422);
         }
 
-
-        if ($request->role == 'child') {
-
-            if (!$request->filled('caregiver_id')) {
-                return response()->json(['error' => 'Caregiver ID is required for child role.'], 422);
-            }
-
-
-            $caregiver = User::find($request->caregiver_id);
-            if (!$caregiver || $caregiver->role !== 'caregiver') {
-                return response()->json(['error' => 'Invalid caregiver ID.'], 422);
-            }
-
-
-            $user = User::create([
-                'name' => $request->child_name,
-                'email' => $request->email . '.child',
-                'password' => Hash::make($request->password),
-                'gender' => $request->child_gender,
-                'role' => 'child',
-            ]);
-
-
-            $caregiver->children()->attach($user->id);
-        }
-
+        $user = User::create($userData);
 
         $token = $user->createToken($user->name)->plainTextToken;
 

@@ -19,7 +19,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $fillable = ['name', 'email', 'password', 'role' , 'caregivers_id'];
 
 
     /**
@@ -48,7 +48,7 @@ class User extends Authenticatable
     }
     public function children()
     {
-        return $this->hasMany(Child::class);
+        return $this->hasMany(Child::class , 'caregivers_id');
     }
     public function doctor()
     {
@@ -56,7 +56,7 @@ class User extends Authenticatable
     }
     public function caregivers()
     {
-        return $this->hasMany(Child::class, 'caregiver_id');
+        return $this->hasMany(Child::class, 'caregivers_id');
     }
     // public function roles()
     // {

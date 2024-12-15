@@ -31,7 +31,7 @@ class EyelevelSeeder extends Seeder
         if ($child && $caregiver) { // تأكد من وجود الـ child و الـ caregiver
             Child::create([
                 'user_id' => $child->id,
-                'caregiver_id' => $caregiver->id, // ربط الطفل بالـ caregiver
+                'caregivers_id' => $caregiver->id, // ربط الطفل بالـ caregiver
                 'name' => $child->name,
                 'last_exam_date' => Carbon::now()->subDays(rand(1, 30)),
             ]);

@@ -11,7 +11,7 @@ class Caregiver extends Model
     use HasFactory, SoftDeletes;
     public function children()
     {
-        return $this->hasMany(Child::class, 'caregiver_id');
+        return $this->hasMany(Child::class, 'caregivers_id');
     }
     public function user()
     {
