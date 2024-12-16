@@ -23,7 +23,7 @@ class RegisteredUserController extends Controller
     {
         return view('auth.register');
     }
-
+ 
     /**
      * Handle an incoming registration request.
      *
@@ -55,6 +55,7 @@ class RegisteredUserController extends Controller
         if ($request->role === 'doctor') {
             Doctor::create([
                 'user_id' => $user->id,
+                'name' => $request->name,
             ]);
         }
 
@@ -68,6 +69,7 @@ class RegisteredUserController extends Controller
     }
     public function authenticated(Request $request, $user)
     {
+        $this->authorize('access-admin', $user);
         // إذا لم يكن المستخدم من دور admin أو doctor، قم بتسجيل الخروج وعرض رسالة
         if (!in_array($user->role, ['admin', 'doctor'])) {
             Auth::logout();
