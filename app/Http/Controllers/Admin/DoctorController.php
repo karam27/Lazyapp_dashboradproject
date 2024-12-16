@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
+    public function __construct()
+    {
+
+        $this->middleware('auth');
+
+        $this->middleware('can:access-admin')->only(['index', 'create', 'edit', 'update', 'destroy']);
+    }
     public function index()
     {
         $doctors = User::where('role', 'doctor')->get();

@@ -21,7 +21,7 @@
         @endcan
 
 
-
+       @can('access-admin')
 
         <li>
             <a href="{{ route('admin.doctors') }}"
@@ -29,7 +29,7 @@
                 <i class="fas fa-user-md mr-3"></i> إدارة الأطباء
             </a>
         </li>
-
+   @endcan
 
 
 
