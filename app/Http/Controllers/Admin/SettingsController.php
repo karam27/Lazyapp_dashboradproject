@@ -12,7 +12,10 @@ class SettingsController extends Controller
 
     public function __construct()
     {
+    
         $this->middleware('auth');
+
+        $this->middleware('can:access-admin')->only(['edit', 'update']);
     }
 
     public function edit()
