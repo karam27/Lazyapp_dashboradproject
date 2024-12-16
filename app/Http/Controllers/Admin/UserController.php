@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth'); // تأكد من أن المستخدم مسجل دخوله
+        $this->middleware('can:access-admin')->only(['index', 'store', 'edit', 'update', 'destroy']); // استخدام السياسة للتحقق من الدور
+    }
 
     public function index()
     {
