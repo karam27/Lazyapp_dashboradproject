@@ -11,13 +11,14 @@
 
 
 
-
-        <li>
-            <a href="{{ route('admin.users') }}"
-                class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all duration-300">
-                <i class="fas fa-users mr-3"></i> إدارة المستخدمين
-            </a>
-        </li>
+        @can('access-admin')
+            <li>
+                <a href="{{ route('admin.users') }}"
+                    class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all duration-300">
+                    <i class="fas fa-users mr-3"></i> إدارة المستخدمين
+                </a>
+            </li>
+        @endcan
 
 
 
@@ -53,15 +54,14 @@
                 <i class="fa-solid fa-file mr-3"></i> ادارة التقارير
             </a>
         </li>
-
-
-        <li>
-            <a href="{{ route('admin.settings') }}"
-                class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all duration-300">
-                <i class="fas fa-cogs mr-3"></i> إعدادات النظام
-            </a>
-        </li>
-
+        @can('access-admin')
+            <li>
+                <a href="{{ route('admin.settings') }}"
+                    class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all duration-300">
+                    <i class="fas fa-cogs mr-3"></i> إعدادات النظام
+                </a>
+            </li>
+        @endcan
 
 
         <li>
