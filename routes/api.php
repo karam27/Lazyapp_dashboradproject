@@ -47,9 +47,6 @@ Route::middleware('guest')->group(function () {
 });
 
 
-Route::apiResource('/children' , ChildController::class);
-
-Route::apiResource('sessions', SessionController::class);
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -68,6 +65,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Eye Levels
     Route::apiResource('/eye-levels', EyeLevelController::class);
+
+    Route::apiResource('children', ChildController::class)->names([
+        'index' => 'children.index',
+        'store' => 'children.store',
+        'show' => 'children.show',
+        'update' => 'children.update',
+        'destroy' => 'children.destroy',
+    ]);
+    Route::apiResource('sessions', SessionController::class);
 
 
     // Reports

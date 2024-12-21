@@ -33,7 +33,7 @@ class ChildController extends Controller
             'birth_date' => 'nullable|date',
             'weak_eye' => 'nullable|in:left,right,both',
             'other_details' => 'nullable|string',
-            'vision_level' => 'required|numeric|min:1|max:5',
+            'vision_level' => 'required_if:weak_eye,left,right,both|numeric|min:1|max:5',
             'last_exam_date' => 'required|date',
 
         ]);

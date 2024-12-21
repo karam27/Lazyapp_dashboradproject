@@ -30,8 +30,9 @@ class Child extends Model
 
     public function caregiver()
     {
-        return $this->belongsTo(caregiver::class, 'caregivers_id');
+        return $this->belongsTo(User::class, 'caregivers_id');
     }
+
 
     public function doctor()
     {
