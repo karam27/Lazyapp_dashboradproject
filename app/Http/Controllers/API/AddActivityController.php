@@ -14,8 +14,19 @@ class AddActivityController extends Controller
     public function index()
     {
         //
-        return AddActivity::with(['user', 'activity'])->get();
+        try {
+            $activities = AddActivity::with(['user', 'activity'])->get();
 
+            return response()->json([
+                'message' => 'Activities fetched successfully.',
+                'data' => $activities
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching the activities.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -25,17 +36,27 @@ class AddActivityController extends Controller
     {
         //
 
-        $validated = $request->validate([
+        try {
+            $validated = $request->validate([
                 'user_id' => 'required|exists:users,id',
                 'activities_id' => 'required|exists:activities,id',
-                'vision_level' => 'nullable|numeric', // تعديل هنا لقبول الأرقام العشرية
+                'vision_level' => 'nullable|numeric|max:5',
                 'date' => 'required|date',
             ]);
 
 
-        $addActivity = AddActivity::create($validated);
+            $addActivity = AddActivity::create($validated);
 
-        return response()->json($addActivity, 201);
+            return response()->json([
+                'message' => 'Activity added successfully.',
+                'data' => $addActivity
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while creating the activity.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -43,7 +64,25 @@ class AddActivityController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $addActivity = AddActivity::with(['user', 'activity'])->find($id);
+
+            if (!$addActivity) {
+                return response()->json([
+                    'message' => 'Activity not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Activity fetched successfully.',
+                'data' => $addActivity
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while fetching the activity.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -52,18 +91,28 @@ class AddActivityController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'activities_id' => 'required|exists:activities,id',
-            'vision_level' => 'nullable|numeric', // تعديل هنا لقبول الأرقام العشرية
-            'date' => 'required|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'activities_id' => 'required|exists:activities,id',
+                'vision_level' => 'nullable|numeric|max:5',
+                'date' => 'required|date',
+            ]);
 
+            $addActivity = AddActivity::findOrFail($id);
 
-        $addActivity = AddActivity::findOrFail($id);
-        $addActivity->update($validated);
+            $addActivity->update($validated);
 
-        return response()->json($addActivity);
+            return response()->json([
+                'message' => 'Activity updated successfully.',
+                'data' => $addActivity
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the activity.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -73,9 +122,19 @@ class AddActivityController extends Controller
     {
         //
 
-        $addActivity = AddActivity::findOrFail($id);
-        $addActivity->delete();
+        try {
+            $addActivity = AddActivity::findOrFail($id);
 
-        return response()->json(['message' => 'Deleted successfully']);
+            $addActivity->delete();
+
+            return response()->json([
+                'message' => 'Activity deleted successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while deleting the activity.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

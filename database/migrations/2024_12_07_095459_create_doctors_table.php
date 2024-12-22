@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('number_of_cases')->default(0);
             $table->string('contact_details')->nullable();
             $table->string('location')->nullable();
+            $table->string('code', 4)->unique()->nullable(); 
             $table->timestamps();
         });
     }

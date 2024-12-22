@@ -10,9 +10,12 @@ class Child extends Model
 {
     use HasFactory, SoftDeletes;
 
+        protected $hidden = ['id'];
+
+
     protected $fillable = [
         'user_id',
-        'caregivers_id',
+        'caregiver_id',
         'doctor_id',
         'birth_date',
         'weak_eye',
@@ -20,6 +23,8 @@ class Child extends Model
         'name',
         'vision_level',
         'last_exam_date',
+
+
     ];
 
 
@@ -42,6 +47,11 @@ class Child extends Model
     public function activities()
     {
         return $this->hasMany(Activity::class);
+    }
+
+    public function getBirthDateAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('Y-m-d');
     }
 
 }

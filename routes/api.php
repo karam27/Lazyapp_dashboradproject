@@ -42,19 +42,17 @@ Route::delete('/profile', [ProfileController::class, 'destroy']);
 
 
 
-Route::middleware('guest')->group(function () {
-
-});
+Route::middleware('guest')->group(function () {});
 
 
 
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user', [AuthController::class, 'user']);
 
-    Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Users
@@ -63,16 +61,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //Doctor
     Route::apiResource('doctors', DoctorController::class);
 
+    // في ملف routes/api.php
+
+    Route::post('/connect-child-to-doctor', [ChildController::class, 'connectChildToDoctor']);
+
     // Eye Levels
     Route::apiResource('/eye-levels', EyeLevelController::class);
 
-    Route::apiResource('children', ChildController::class)->names([
-        'index' => 'children.index',
-        'store' => 'children.store',
-        'show' => 'children.show',
-        'update' => 'children.update',
-        'destroy' => 'children.destroy',
-    ]);
+    Route::apiResource('children', ChildController::class);
     Route::apiResource('sessions', SessionController::class);
 
 
@@ -88,6 +84,4 @@ Route::middleware('auth:sanctum')->group(function () {
     // Settings
     Route::get('/settings', [SettingsController::class, 'edit']);
     Route::put('/settings', [SettingsController::class, 'update']);
-
-
 });

@@ -24,7 +24,11 @@ class DoctorController extends Controller
     {
 
         $doctors = Doctor::all();
-        return response()->json($doctors, 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Doctors retrieved successfully.',
+            'data' => $doctors
+        ], 200);
     }
 
     /**
@@ -40,20 +44,34 @@ class DoctorController extends Controller
             'number_of_cases' => 'nullable|integer|min:0',
             'contact_details' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
+            'code' => 'required|regex:/^\d{4}$/',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $doctor = Doctor::create($request->all());
 
+        // إضافة الطبيب إلى قاعدة البيانات
+        $doctor = Doctor::create([
+            'user_id' => $request->user_id,
+            'name' => $request->name,
+            'description' => $request->description,
+            'rating' => $request->rating,
+            'number_of_cases' => $request->number_of_cases,
+            'contact_details' => $request->contact_details,
+            'location' => $request->location,
+            'code' => $request->code,
+        ]);
+
+        // إرجاع الاستجابة مع إخفاء id
         return response()->json([
+            'status' => 'success',
             'message' => 'Doctor created successfully.',
-            'doctor' => $doctor
+            'doctor' => new DoctorResource($doctor)  // إرجاع الـ Resource
         ], 201);
-
     }
+
 
 
     /**
@@ -61,15 +79,24 @@ class DoctorController extends Controller
      */
     public function show($id)
     {
-        $doctor = Doctor::find($id);
+        $doctor = Doctor::with('user')->find($id);  
 
         if (!$doctor) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Doctor not found.'
             ], 404);
         }
 
-        return response()->json($doctor, 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Doctor retrieved successfully.',
+            'doctor' => [
+                'id' => $doctor->id,
+                'name' => $doctor->name,
+                'email' => $doctor->user->email,  // إرجاع الـ email من الـ User
+            ]
+        ], 200);
     }
 
     /**
@@ -81,6 +108,7 @@ class DoctorController extends Controller
 
         if (!$doctor) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Doctor not found.'
             ], 404);
         }
@@ -102,6 +130,7 @@ class DoctorController extends Controller
         $doctor->update($request->all());
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Doctor updated successfully.',
             'doctor' => $doctor
         ], 200);
@@ -117,6 +146,7 @@ class DoctorController extends Controller
 
         if (!$doctor) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Doctor not found.'
             ], 404);
         }
@@ -124,8 +154,8 @@ class DoctorController extends Controller
         $doctor->delete();
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Doctor removed successfully.'
         ], 200);
     }
-
 }

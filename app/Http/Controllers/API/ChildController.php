@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Child;
+use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,7 +17,14 @@ class ChildController extends Controller
     {
         // Retrieve all children
         $children = Child::with(['user', 'caregiver', 'doctor'])->get();
-        return response()->json($children, 200);
+
+        if ($children->isEmpty()) {
+            return response()->json([
+                'message' => 'No children found.'
+            ], 404); // Return 404 if no children found
+        }
+        return response()->json($children, 200); // Return 200 if data found
+
     }
 
     /**
@@ -26,7 +34,7 @@ class ChildController extends Controller
     {
         // Validate the incoming data
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'caregivers_id' => 'nullable|exists:users,id',
             'doctor_id' => 'nullable|exists:users,id',
             'name' => 'required|string|max:255',
@@ -34,19 +42,23 @@ class ChildController extends Controller
             'weak_eye' => 'nullable|in:left,right,both',
             'other_details' => 'nullable|string',
             'vision_level' => 'required_if:weak_eye,left,right,both|numeric|min:1|max:5',
-            'last_exam_date' => 'required|date',
+            'last_exam_date' => 'nullable|date',
 
         ]);
 
         // Return validation errors if any
         if ($validator->fails()) {
             return response()->json([
+                'message' => 'Validation errors.',
                 'errors' => $validator->errors()
-            ], 422);
+            ], 422); // Return 422 for validation errors
         }
 
-        $child = Child::create($request->all());
+        $validatedData = $validator->validated();
 
+        $child = Child::create($validatedData);
+
+        $child->makeHidden(['id']);
 
         return response()->json([
             'message' => 'Children created successfully.',
@@ -88,7 +100,7 @@ class ChildController extends Controller
 
         // Validate the incoming data
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'caregivers_id' => 'nullable|exists:users,id',
             'doctor_id' => 'nullable|exists:users,id',
             'name' => 'required|string|max:255',
@@ -96,8 +108,15 @@ class ChildController extends Controller
             'weak_eye' => 'nullable|in:left,right,both',
             'other_details' => 'nullable|string',
             'vision_level' => 'required|numeric|min:1|max:5',
-            'last_exam_date' => 'required|date',
+            'last_exam_date' => 'nullable|date',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         $child->update($request->all());
 
@@ -127,6 +146,48 @@ class ChildController extends Controller
 
         return response()->json([
             'message' => 'Child removed successfully.'
+        ], 200);
+    }
+
+    public function connectChildToDoctor(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'child_id' => 'required|exists:children,id',
+            'doctor_code' => 'required|exists:doctors,code',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+
+        $child = Child::find($request->child_id);
+        $doctor = Doctor::where('code', $request->doctor_code)->first();
+
+        if (!$child) {
+            return response()->json([
+                'message' => 'Child not found.'
+            ], 404);
+        }
+
+        if (!$doctor) {
+            return response()->json([
+                'message' => 'Doctor not found with the provided code.'
+            ], 404);
+        }
+
+        $child->doctor_id = $doctor->id;
+        $child->save();
+
+
+        return response()->json([
+            'message' => 'Child successfully connected to doctor.',
+            'child' => $child
         ], 200);
     }
 }
