@@ -99,6 +99,7 @@ class DoctorController extends Controller
         // إنشاء السجل في جدول `doctors` بعد إنشاء المستخدم
         Doctor::create([
             'user_id' => $doctor->id, // ربط الطبيب بالمستخدم
+            'name' => $validated['name'], // لازم تمرر الاسم هنا
         ]);
 
         return redirect()->route('doctors.index')->with('success', 'تم إضافة الطبيب بنجاح');
